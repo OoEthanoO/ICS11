@@ -14,7 +14,7 @@ for i in range(len(message)):
 vowel_count = 0
 for i in range(len(message)):
     letter = message[i].lower()
-    if letter == 'a' or letter == 'A' or letter == 'e' or letter == 'E' or letter == 'i' or letter == 'I' or letter == 'o' or letter == 'O' or letter == 'u' or letter == 'U':
+    if letter in "aeiouAEIOU":
         vowel_count += 1
 
 print(f"\nYour message contains {vowel_count} vowels.")

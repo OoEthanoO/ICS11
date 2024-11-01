@@ -50,6 +50,8 @@ while running:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]: # right arrow key to speed things up if you want to see weather changes faster
             speed_multiplier = 4 # highly recommend using this to see the weather changes faster
+        elif keys[pygame.K_LEFT]: # left arrow to slow things down
+            speed_multiplier = 0.25 # press this if you wanna see cool lightning better
         else:
             speed_multiplier = 1
 
@@ -62,7 +64,8 @@ while running:
         print(sky_color)
         prev_weather = weather
         weather = random.randint(1, 4)
-        # weather = 4
+        # weather = 4 # uncomment this if you want to see a specific weather
+        # imo coolest one is 4
         if weather != 1:
             num_clouds = 0
             if weather == 2:
@@ -121,6 +124,11 @@ while running:
 
     thunder_this_frame = weather == 4 and random.randint(0, 20) == 0
 
+    for cloud in cloud_coords:
+        cloud[0] += 0.5
+        if cloud[0] > WIDTH + 70:
+            cloud_coords.remove(cloud)
+
     game_tick += 1
 
     # DRAWING
@@ -152,18 +160,19 @@ while running:
     if weather >= 3: # rainy
         rain_alpha = 255
     else:
-        if prev_weather >= 3 and rain_alpha > 0:
+        if rain_alpha > 0 and prev_weather >= 3:
             rain_alpha -= 2 # rain fades out (i think its pretty cool)
     
     if rain_alpha >= 0:
         rain_surface = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
         # draw rain streaks
         for _ in range(200):
-            x, y = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+            x, y = random.randint(0, WIDTH), random.randint(0, 350)
             # only draw rain streaks below the clouds
             for cloud in cloud_coords:
                 if x > cloud[0] - 60 + (y - 100) * 0.5 + 15 and x < cloud[0] + 60 + (y - 100) * 0.5 and y > cloud[1] + 10:
-                    pygame.draw.line(rain_surface, (0, 0, 255, rain_alpha), (x, y), (x + 10, y + 20), 2)
+                    from_ground = (350 - y) / 20
+                    pygame.draw.line(rain_surface, (0, 0, 255, rain_alpha), (x, y), (x + min(1, from_ground) * 10, y + min(1, from_ground) * 20), 2)
                     break
                 # pygame.draw.line(screen, (0, 0, 255), (x, y), (x + 10, y + 20), 2)
 
@@ -174,8 +183,15 @@ while running:
         # fire lightning from some random cloud to the ground
         if thunder_this_frame:
             cloud = random.choice(cloud_coords)
-            # sticking with line cuz i dont know how to draw a good looking lightning bolt
-            pygame.draw.line(screen, (255,154,0), (cloud[0] + random.randint(-70, 70), cloud[1] + 30), (cloud[0] + random.randint(-140, 140), 350), 3)
+            break_coords = [(cloud[0] + random.randint(-70, 70), cloud[1])]
+            for _ in range(5):
+                break_coords.append((break_coords[-1][0] + random.randint(-30, 30), break_coords[-1][1] + random.randint(0, 56)))
+                # zig zags
+
+            break_coords[-1] = (break_coords[-1][0], 350)
+            # it has to zap the ground at the end so
+            for i in range(len(break_coords) - 1):
+                pygame.draw.line(screen, (255, 255, 255), break_coords[i], break_coords[i + 1], 2)
 
     # draw clouds
     for cloud in cloud_coords:
@@ -183,9 +199,6 @@ while running:
         pygame.draw.circle(screen, (255, 255, 255), tuple(cloud), 30)
         pygame.draw.circle(screen, (255, 255, 255), (cloud[0] + 40, cloud[1] + 5), 30)
         pygame.draw.circle(screen, (255, 255, 255), (cloud[0] - 40, cloud[1] + 5), 30)
-        cloud[0] += 0.5
-        if cloud[0] > WIDTH + 70:
-            cloud_coords.remove(cloud)
 
     # Must be the last two lines
     # of the game loop

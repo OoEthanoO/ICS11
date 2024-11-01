@@ -49,3 +49,7 @@ print(x_pos_list)
 
 # 6
 coordinate_string = "x:2,y:5 - x:5,y:11 - x:7,y:14"
+points_list = coordinate_string.split(" - ")
+for i, point in enumerate(points_list):
+    points_list[i] = [int(point.split(",")[0].split(":")[1]), int(point.split(",")[1].split(":")[1])]
+print(points_list)

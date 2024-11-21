@@ -11,7 +11,7 @@ def main():
     if choice == 1:
         butterfly()
         butterfly()
-        # two butteflies printed
+        # two butterflies printed
     elif choice == 2:
         elephant()
     elif choice == 3:
